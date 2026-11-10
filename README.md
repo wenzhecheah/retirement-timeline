@@ -49,6 +49,7 @@ timeline's last age) and `SOURCE_KINDS`.
 
 - `engine.js`: all calculations (no page code), tested in `tests/`.
 - `app.js`: the form, the report and chart, and saving and opening client files.
+- `to-top.js`: the back-to-top button (as in the BTO Planner).
 - `style.css`: the shared VWA styles, with Retirement Timeline additions at the end.
 
 Run the tests (Node 18 or later):
