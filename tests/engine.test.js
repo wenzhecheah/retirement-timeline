@@ -97,3 +97,17 @@ test('client files round-trip and bad values are cleaned', () => {
   assert.equal(messy.sources[0].extra, undefined);
   assert.throws(() => call('readClientFile', { sources: 'x' }), /not a Retirement Timeline/);
 });
+
+test('phone numbers are spaced as 1234 5678', () => {
+  assert.equal(call('phoneText', '91234567'), '9123 4567');
+  assert.equal(call('phoneText', '9123 4567'), '9123 4567');
+  assert.equal(call('phoneText', '9123-4567'), '9123 4567');
+  assert.equal(call('phoneText', '+6591234567'), '+65 9123 4567');
+  assert.equal(call('phoneText', '+65 9123 4567'), '+65 9123 4567');
+  assert.equal(call('phoneText', '91234'), '9123 4');   // while typing
+  assert.equal(call('phoneText', '912'), '912');
+  assert.equal(call('phoneText', ''), '');
+  assert.equal(call('phoneText', '+60 12-345 6789'), '+60 12-345 6789'); // other countries: as typed
+  assert.equal(call('phoneText', '0123456789'), '0123456789');           // too long: as typed
+  assert.equal(call('phoneText', 'ext 123'), 'ext 123');
+});

@@ -95,3 +95,17 @@ function summary(rows, goal) {
   return { current: best('current'), optimised: best('optimised'),
     goalMetFrom: start >= 0 ? rows[start].age : null, goalMetUntil: start >= 0 ? rows[end].age : null };
 }
+
+// Singapore phone numbers as 1234 5678 (+65 1234 5678 with the country code).
+// Anything else (other country codes, longer numbers) is left as typed.
+function phoneText(raw) {
+  const typed = String(raw).trim();
+  let digits = typed.replace(/\D/g, ''), prefix = '';
+  if (typed.startsWith('+')) {
+    if (!digits.startsWith('65')) return typed;
+    prefix = '+65 ';
+    digits = digits.slice(2);
+  }
+  if (digits.length > 8 || /[^\d\s+()-]/.test(typed)) return typed;
+  return prefix + (digits.length > 4 ? `${digits.slice(0, 4)} ${digits.slice(4)}` : digits);
+}

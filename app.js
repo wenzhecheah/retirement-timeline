@@ -9,7 +9,7 @@ const monthLabel = s => { if (!s) return '–'; const [y, m] = s.split('-'); ret
 const today = () => new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD, local time
 const kindLabel = key => SOURCE_KINDS.find(k => k.key === key)?.label.split(' (')[0] ?? 'Traditional';
 
-const newClient = () => ({ ...blankClient(), preparedOn: today(), adviserName: ADVISER.name, adviserMobile: ADVISER.mobile });
+const newClient = () => ({ ...blankClient(), preparedOn: today(), adviserName: ADVISER.name, adviserMobile: phoneText(ADVISER.mobile) });
 let state = { client: newClient(), sources: [] };
 let unsaved = false;
 // The income source being entered or edited. It joins the list (and the report)
@@ -30,7 +30,7 @@ byId('cpf-tier').innerHTML = CPF_TIERS.map(t => `<option>${esc(t)}</option>`).jo
 function fillClient() {
   for (const el of document.querySelectorAll('[data-client]')) {
     const v = state.client[el.dataset.client];
-    el.value = 'amount' in el.dataset ? amountText(v) : el.tagName === 'SELECT' ? v : shown(v);
+    el.value = 'amount' in el.dataset ? amountText(v) : 'phone' in el.dataset ? phoneText(v) : el.tagName === 'SELECT' ? v : shown(v);
   }
 }
 
@@ -87,6 +87,8 @@ const discardDraftOk = () => !draftChanged || confirm('Discard the income source
 
 byId('form').addEventListener('input', e => {
   const el = e.target;
+  // Phone fields: space as 1234 5678 while typing at the end (not mid-edit, so the cursor doesn't jump).
+  if ('phone' in el.dataset && el.selectionStart === el.value.length) el.value = phoneText(el.value);
   // Amount fields: flag anything that isn't an amount, and store 0 for it.
   let value = el.value;
   if ('amount' in el.dataset) {
@@ -108,6 +110,11 @@ byId('form').addEventListener('input', e => {
 // Leaving an amount field shows it as $x,xxx.xx (unless it isn't a valid amount).
 byId('form').addEventListener('focusout', e => {
   const el = e.target;
+  if ('phone' in el.dataset) {
+    el.value = phoneText(el.value);
+    state.client[el.dataset.client] = el.value;
+    renderReport();
+  }
   if (!('amount' in el.dataset)) return;
   const n = toAmount(el.value);
   if (!Number.isNaN(n)) el.value = amountText(n);
@@ -296,7 +303,7 @@ function renderReport() {
   byId('timeline-table').innerHTML = head + `<tbody>${body || '<tr><td class="l" colspan="13">Enter the client\'s date of birth to see the timeline.</td></tr>'}</tbody>`
     + (rows.length ? '<tfoot><tr class="note"><td colspan="13"><div>Monthly: everything paying that year. Yearly: each payout for the months it pays that year, so a payout starting mid-year counts only from its first month.</div></td></tr></tfoot>' : '');
 
-  const by = [client.adviserName, client.adviserMobile && `M: ${client.adviserMobile}`].filter(Boolean).join('\n');
+  const by = [client.adviserName, client.adviserMobile && `M: ${phoneText(client.adviserMobile)}`].filter(Boolean).join('\n');
   byId('report-foot').textContent = `${by ? `Prepared by:\n${by}\n\n` : ''}${DISCLAIMER}`;
 }
 
