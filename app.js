@@ -45,8 +45,8 @@ function sourceForm(s) {
       <div class="grid4">
         <label>Name <input type="text" data-field="name" autocomplete="off" value="${esc(s.name)}" placeholder="e.g. Annuity payout"></label>
         <label>Type <select data-field="kind">${options(SOURCE_KINDS.map(k => [k.key, k.label]), s.kind)}</select></label>
-        <label>Payout starts <input type="month" data-field="start" value="${esc(s.start)}"></label>
-        <label>Payout ends <span class="hint">(blank: lifelong)</span> <input type="month" data-field="end" value="${esc(s.end)}"></label>
+        <label>Payout starts <input type="text" inputmode="numeric" autocomplete="off" placeholder="MM/YYYY" maxlength="7" data-field="start" data-month value="${esc(s.start ? monthLabel(s.start) : '')}"></label>
+        <label>Payout ends <span class="hint">(blank: lifelong)</span> <input type="text" inputmode="numeric" autocomplete="off" placeholder="MM/YYYY" maxlength="7" data-field="end" data-month value="${esc(s.end ? monthLabel(s.end) : '')}"></label>
         <label>Monthly payout <input type="text" inputmode="decimal" autocomplete="off" placeholder="$0.00" data-field="monthly" data-amount value="${esc(amountText(s.monthly))}"></label>
         <label>Notes <input type="text" data-field="notes" autocomplete="off" value="${esc(s.notes)}" placeholder="e.g. guaranteed"></label>
       </div>
@@ -96,6 +96,14 @@ byId('form').addEventListener('input', e => {
     el.setAttribute('aria-invalid', String(Number.isNaN(n)));
     value = Number.isNaN(n) ? 0 : n;
   }
+  // Month fields: typed as MM/YYYY (the slash added while typing at the end), stored as
+  // YYYY-MM; anything that isn't a month is flagged and stored blank.
+  if ('month' in el.dataset) {
+    if (el.selectionStart === el.value.length) el.value = monthTyping(el.value);
+    const ym = parseMonth(el.value);
+    el.setAttribute('aria-invalid', String(ym === null));
+    value = ym ?? '';
+  }
   if (el.dataset.client) {
     state.client[el.dataset.client] = parse(blankClient()[el.dataset.client], value);
     unsaved = true;
@@ -115,6 +123,11 @@ byId('form').addEventListener('focusout', e => {
     state.client[el.dataset.client] = el.value;
     renderReport();
   }
+  if ('month' in el.dataset) {
+    const ym = parseMonth(el.value);
+    if (ym) el.value = monthLabel(ym); // 1/2030 shows as 01/2030
+    return;
+  }
   if (!('amount' in el.dataset)) return;
   const n = toAmount(el.value);
   if (!Number.isNaN(n)) el.value = amountText(n);
@@ -122,7 +135,9 @@ byId('form').addEventListener('focusout', e => {
 
 function sourceProblem(s) {
   if (!s.name.trim()) return ['name', 'Enter a name for the income source.'];
-  if (byId('source-form').querySelector('[aria-invalid="true"]')) return ['monthly', 'Fix the monthly payout: use numbers only, like 1500.'];
+  const bad = byId('source-form').querySelector('[aria-invalid="true"]');
+  if (bad && 'month' in bad.dataset) return [bad.dataset.field, 'Enter months as MM/YYYY, like 12/2026.'];
+  if (bad) return ['monthly', 'Fix the monthly payout: use numbers only, like 1500.'];
   if (!(s.monthly > 0)) return ['monthly', 'Enter the monthly payout.'];
   if (!s.start) return ['start', 'Enter the month the payout starts.'];
   if (s.end && s.end < s.start) return ['end', 'The payout can\'t end before it starts.'];

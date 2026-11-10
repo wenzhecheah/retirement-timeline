@@ -23,7 +23,8 @@ entered leaves the browser unless you save the client file.
    CPF's Monthly Payout Estimator or the CPF Forecast Calculator) and the age
    payouts start. It appears on both sides.
 3. **Optimised**: add each income source one at a time: name, Traditional or
-   Modern, the month its payout starts and ends (blank: lifelong) and the
+   Modern, the month its payout starts and ends as MM/YYYY (blank end:
+   lifelong) and the
    monthly payout as shown in its own illustration. Edit or remove them in the
    list.
 4. The report shows the goal, the highest income on each side, the ages the

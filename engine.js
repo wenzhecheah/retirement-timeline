@@ -109,3 +109,21 @@ function phoneText(raw) {
   if (digits.length > 8 || /[^\d\s+()-]/.test(typed)) return typed;
   return prefix + (digits.length > 4 ? `${digits.slice(0, 4)} ${digits.slice(4)}` : digits);
 }
+
+// A month typed as MM/YYYY (or M/YYYY): 'YYYY-MM', '' if blank, or null if it
+// isn't a valid month.
+function parseMonth(text) {
+  const t = String(text).trim();
+  if (!t) return '';
+  const m = /^(\d{1,2})\s*\/\s*(\d{4})$/.exec(t);
+  if (!m || +m[1] < 1 || +m[1] > 12) return null;
+  return `${m[2]}-${m[1].padStart(2, '0')}`;
+}
+
+// While typing a month: digits only get the slash added after the month,
+// so 122026 shows as 12/2026. Text that already has a slash is left alone.
+function monthTyping(text) {
+  if (String(text).includes('/')) return text;
+  const digits = String(text).replace(/\D/g, '').slice(0, 6);
+  return digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+}

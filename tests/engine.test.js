@@ -111,3 +111,20 @@ test('phone numbers are spaced as 1234 5678', () => {
   assert.equal(call('phoneText', '0123456789'), '0123456789');           // too long: as typed
   assert.equal(call('phoneText', 'ext 123'), 'ext 123');
 });
+
+test('months are typed as MM/YYYY', () => {
+  assert.equal(call('parseMonth', '12/2026'), '2026-12');
+  assert.equal(call('parseMonth', '1/2030'), '2030-01');
+  assert.equal(call('parseMonth', ' 03 / 2031 '), '2031-03');
+  assert.equal(call('parseMonth', ''), '');
+  assert.equal(call('parseMonth', '13/2026'), null);
+  assert.equal(call('parseMonth', '00/2026'), null);
+  assert.equal(call('parseMonth', '12/26'), null);
+  assert.equal(call('parseMonth', 'December 2026'), null);
+  assert.equal(call('monthTyping', '1'), '1');
+  assert.equal(call('monthTyping', '12'), '12');
+  assert.equal(call('monthTyping', '122'), '12/2');
+  assert.equal(call('monthTyping', '122026'), '12/2026');
+  assert.equal(call('monthTyping', '12202699'), '12/2026');
+  assert.equal(call('monthTyping', '1/2030'), '1/2030');
+});
