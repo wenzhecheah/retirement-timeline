@@ -268,6 +268,42 @@ const events = side => [
 ].join('');
 const starts = side => [...side.starts.map(s => monthLabel(s.start)), ...side.ends.map(s => monthLabel(s.end))].join('<br>');
 
+// The printed timeline, laid out like the Excel template's RETIREMENT TIMELINE sheet:
+// CURRENT (yellow) and OPTIMISED (green) side by side, each with its own Age, Year,
+// Policy Name, Payout Date, Lump Sum and Regular Payout columns, an "ADD $X/MTH"
+// note beside each change, and the goal (pink) between them.
+function excelSheet(rows, goal, client, peak, foot) {
+  const cash = n => n ? money(n) : '-';
+  // Numbered like the template: 1) CPF LIFE (FRS) 2) Last retirement pot.
+  const names = side => [...side.starts.map(s => s.name), ...side.ends.map(s => `${s.name} ends`)]
+    .map((n, i) => `<span class="x-pol">${i + 1}) ${esc(n)}</span>`).join('<br>') || '-';
+  const dates = side => [...side.starts.map(s => monthLabel(s.start)), ...side.ends.map(s => monthLabel(s.end))].join('<br>') || '-';
+  const notes = side => [...side.starts.map(s => `ADD ${money(s.monthly)}/MTH`), ...side.ends.map(s => `LESS ${money(s.monthly)}/MTH`)].join('<br>');
+  const half = (side, cls) => `<td>${side.age}</td><td>${side.year}</td><td class="x-name ${cls}">${names(side.s)}</td>
+    <td>${dates(side.s)}</td><td>-</td><td class="${cls}">${cash(side.s.yearly)}</td><td class="${cls}">${cash(side.s.monthly)}</td>
+    <td class="x-note">${notes(side.s)}</td>`;
+  const heads = ['Age', 'Year', 'Policy Name', 'Payout Date', 'Lump Sum Payout', 'Regular Payout (Yearly)', 'Regular Payout (Monthly)']
+    .map(h => `<th class="x-head">${h}</th>`).join('');
+  const pct = +client.goalPercent.toFixed(2);
+  return `<p class="x-title">Retirement Timeline${client.name ? ` for ${esc(client.name)}` : ''}${client.preparedOn ? `\nPrepared on ${dateLabel(client.preparedOn)}` : ''}</p>
+    <div class="x-retire">
+      <span class="x-label">TRADITIONAL RETIREMENT (needs):</span><span class="x-value">${peak ? `${money(peak.optimised.traditional)}/MTH` : '-'}</span>
+      <span class="x-label">MODERN RETIREMENT (wants):</span><span class="x-value">${peak ? `${money(peak.optimised.modern)}/MTH` : '-'}</span>
+    </div>
+    <table class="x-sheet">
+      <thead>
+        <tr><th class="x-current x-big" colspan="7">CURRENT</th><th colspan="2"></th><th class="x-optimised x-big" colspan="7">OPTIMISED</th><th></th></tr>
+        <tr><th class="x-payout x-big" colspan="7">Retirement Payout</th>
+          <th class="x-goal" colspan="2">THE GOAL (${pct}%) &rarr;<br>${goal ? `${money(goal)}/MTH` : '-'}</th>
+          <th class="x-payout x-big" colspan="7">Retirement Payout</th><th></th></tr>
+        <tr>${heads}<th></th><th></th>${heads}<th></th></tr>
+      </thead>
+      <tbody>${rows.map(r => `<tr>${half({ age: r.age, year: r.year, s: r.current }, 'x-cur')}<td class="x-gap"></td>
+        ${half({ age: r.age, year: r.year, s: r.optimised }, 'x-opt')}</tr>`).join('')}</tbody>
+    </table>
+    <p class="x-foot">${esc(foot)}</p>`;
+}
+
 function renderReport() {
   const { client, sources } = state;
   const goal = goalMonthly(client);
@@ -319,7 +355,9 @@ function renderReport() {
     + (rows.length ? '<tfoot><tr class="note"><td colspan="13"><div>Monthly: everything paying that year. Yearly: each payout for the months it pays that year, so a payout starting mid-year counts only from its first month.</div></td></tr></tfoot>' : '');
 
   const by = [client.adviserName, client.adviserMobile && `M: ${phoneText(client.adviserMobile)}`].filter(Boolean).join('\n');
-  byId('report-foot').textContent = `${by ? `Prepared by:\n${by}\n\n` : ''}${DISCLAIMER}`;
+  const foot = `${by ? `Prepared by:\n${by}\n\n` : ''}${DISCLAIMER}`;
+  byId('report-foot').textContent = foot;
+  byId('excel-sheet').innerHTML = rows.length ? excelSheet(rows, goal, client, peak, foot) : '';
 }
 
 fillClient();

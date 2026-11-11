@@ -31,7 +31,11 @@ entered leaves the browser unless you save the client file.
    goal is met, a chart of monthly income by age (CPF LIFE, other Traditional,
    Modern, and the goal line), and the year-by-year timeline.
 5. **Print / Save as PDF** (A4 landscape): the summary and chart, then the
-   timeline in the Excel template's colours.
+   timeline laid out like the Excel template's RETIREMENT TIMELINE sheet:
+   CURRENT and OPTIMISED side by side (Age, Year, Policy Name, Payout Date,
+   Lump Sum Payout, Regular Payout yearly and monthly), an "ADD $X/MTH" note
+   beside each change, the goal between them, and Traditional (needs) and
+   Modern (wants) monthly income at the top right.
 6. **Save client file** / **Open client file** to keep a client and update it at
    the next review. Keep these files private: they hold the client's personal data.
 

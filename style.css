@@ -252,3 +252,35 @@ fieldset > .hint { margin-top: -8px; }
 .to-top.show { opacity: 1; visibility: visible; transform: none; }
 .to-top svg { width: 22px; height: 22px; }
 @media print { .to-top { display: none !important; } }
+
+/* Printed timeline, laid out like the Excel template's RETIREMENT TIMELINE sheet. */
+.excel-sheet { display: none; }
+@media print {
+  .timeline-page { display: none; }
+  .excel-sheet { display: block; break-before: page; font-family: Calibri, Carlito, Arial, sans-serif; color: #000; }
+  .x-title { white-space: pre-line; text-align: center; font: 700 18px/1.25 Calibri, Carlito, Arial, sans-serif; margin: 0 0 6px; }
+  .x-retire { display: grid; grid-template-columns: auto auto; justify-content: end; gap: 2px 0; font-size: 10px; margin: 0 0 6px; }
+  .x-label { background: #d9ead3; text-align: right; padding: 2px 8px; }
+  .x-value { background: #fff2cc; padding: 2px 8px; min-width: 90px; }
+  .x-sheet { width: 100%; border-collapse: collapse; font-size: 8.5px; table-layout: auto; }
+  .x-sheet th, .x-sheet td { text-align: center; vertical-align: middle; padding: 3px 3px; border: 0; color: #000; font-weight: 400; }
+  .x-sheet thead th { position: static; background: none; }
+  .x-sheet .x-big { font-size: 16px; padding: 4px; }
+  .x-sheet .x-current { background: #fff2cc; }
+  .x-sheet .x-optimised { background: #d9ead3; }
+  .x-sheet .x-payout { background: #f8cbad; border: 1px solid #000; font-size: 13px; }
+  .x-sheet .x-goal { background: #f4cccc; font-size: 10px; font-weight: 700; }
+  .x-sheet .x-head { background: #a9d08e; white-space: normal; }
+  .x-sheet tbody td { border-bottom: 1px solid #e4e4e4; background: #fff; }
+  .x-sheet tbody td:first-child, .x-sheet tbody td:nth-child(10) { border-left: 1px solid #000; }
+  .x-sheet .x-name { text-transform: uppercase; font-size: 8px; }
+  .x-sheet .x-pol { font-weight: 700; }
+  .x-sheet .x-opt .x-pol { color: #ff9900; }
+  .x-sheet td.x-opt { font-weight: 700; }
+  .x-sheet .x-note { font-size: 8.5px; white-space: nowrap; }
+  .x-sheet .x-gap { width: 8px; }
+  .x-sheet tr { break-inside: avoid; }
+  .x-foot { white-space: pre-line; text-align: center; font-size: 9px; margin: 10px 0 0; }
+  .excel-sheet, .excel-sheet * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #report-foot { display: none; }
+}
