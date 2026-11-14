@@ -284,3 +284,8 @@ fieldset > .hint { margin-top: -8px; }
   .excel-sheet, .excel-sheet * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   #report-foot { display: none; }
 }
+
+/* Entrance (fade-in.js): page parts fade in one by one when the page opens. */
+@keyframes fade-in-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.fade-in { animation: fade-in-up .5s ease-out var(--fade-delay, 0ms) both; }
+@media print { .fade-in { animation: none; } }
